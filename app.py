@@ -1,4 +1,7 @@
 import os
+import google.generativeai as genai
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-1.5-pro")
 from dotenv import load_dotenv
 from flask import Flask, request, abort
 from linebot.v3.webhook import WebhookHandler, Event
@@ -61,7 +64,10 @@ def handle_message(event: Event):
         app.logger.info(f"收到的訊息: {user_message}")
 
         # 使用 GPT 生成回應
-        reply_text = ("你說了：" + user_message)
+        else:
+    response = model.generate_content(user_message) # 傳送使用者的問題給 Gemini
+    reply_text = response.text if response else "抱歉，我無法回答這個問題。"
+
 
         line_bot_api.reply_message(
             event.reply_token,
